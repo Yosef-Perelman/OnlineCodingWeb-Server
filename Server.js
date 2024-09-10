@@ -1,5 +1,3 @@
-// server.js (backend)
-
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -19,9 +17,36 @@ const io = socketIo(server, {
 
 // Store the current content in a variable
 let currentContent = 'Hello World';
+let rooms = {}
+
+function getRoomSize(roomName) {
+    return rooms[roomName] ? rooms[roomName].length : 0;
+}
 
 io.on('connection', (socket) => {
-    console.log('New client connected');
+    console.log(`New client connected ${socket.id}`);
+    
+    socket.on('join', (room_name) => {
+        console.log(`room name = ${room_name}`);
+        socket.join(room_name);
+
+        if (!rooms[room_name]) {
+            rooms[room_name] = [];
+            // update the user that he is the mentor
+        }
+        rooms[room_name].push(socket.id);
+
+        const roomSize = getRoomSize(room_name);
+
+        // Notify the new user about the current room size
+        socket.emit('roomInfo', { roomSize });
+
+        // Notify other users in the room about the new join
+        socket.to(room_name).emit('userJoined', { socketId: socket.id, roomSize });
+
+        console.log(`Number of users in ${room_name}:`, roomSize);
+
+    })
     
     // Send the current content to the newly connected client
     socket.emit('updateContent', currentContent);
@@ -34,7 +59,15 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        console.log('Client disconnected');
+        console.log(`Client disconnected: ${socket.id}`);
+        for (let roomName in rooms) {
+            const index = rooms[roomName].indexOf(socket.id);
+            if (index !== -1) {
+                rooms[roomName].splice(index, 1);
+                const roomSize = getRoomSize(roomName);
+                socket.to(roomName).emit('userLeft', { socketId: socket.id, roomSize });
+            }
+        }
     });
 });
 
