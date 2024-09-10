@@ -18,6 +18,7 @@ const io = socketIo(server, {
 // Store the current content in a variable
 let currentContent = 'Hello World';
 let rooms = {}
+let mentors = {};
 
 function getRoomSize(roomName) {
     return rooms[roomName] ? rooms[roomName].length : 0;
@@ -30,16 +31,18 @@ io.on('connection', (socket) => {
         console.log(`room name = ${room_name}`);
         socket.join(room_name);
 
+        let isMentor = false;
         if (!rooms[room_name]) {
             rooms[room_name] = [];
-            // update the user that he is the mentor
+            mentors[room_name] = socket.id;
+            isMentor = true;
         }
         rooms[room_name].push(socket.id);
 
         const roomSize = getRoomSize(room_name);
 
         // Notify the new user about the current room size
-        socket.emit('roomInfo', { roomSize });
+        socket.emit('roomInfo', { roomSize, isMentor });
 
         // Notify other users in the room about the new join
         socket.to(room_name).emit('userJoined', { socketId: socket.id, roomSize });
@@ -65,7 +68,15 @@ io.on('connection', (socket) => {
             if (index !== -1) {
                 rooms[roomName].splice(index, 1);
                 const roomSize = getRoomSize(roomName);
-                socket.to(roomName).emit('userLeft', { socketId: socket.id, roomSize });
+                
+                if (mentors[roomName] === socket.id) {
+                    // Mentor has left, notify all users to leave
+                    io.to(roomName).emit('mentorLeft');
+                    delete rooms[roomName];
+                    delete mentors[roomName];
+                } else {
+                    socket.to(roomName).emit('userLeft', { socketId: socket.id, roomSize });
+                }
             }
         }
     });
