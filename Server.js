@@ -76,6 +76,9 @@ io.on('connection', (socket) => {
 
         const roomSize = getRoomSize(roomName);
 
+        // Updates the new user with the current content of the editor
+        socket.emit('roomInfo', { roomSize, isMentor });
+        
         if (!contents[roomName]) {
             try {
                 const roomContent = await getDataFromMongo(roomName);
@@ -90,9 +93,6 @@ io.on('connection', (socket) => {
         } else {
             socket.emit('updateContent', contents[roomName].initialCode);
         }
-
-        // Updates the new user with the current content of the editor
-        socket.emit('roomInfo', { roomSize, isMentor });
 
         // Informs the other users that a new user has joined the room
         socket.to(roomName).emit('userJoined', { socketId: socket.id, roomSize });
