@@ -91,7 +91,7 @@ io.on('connection', (socket) => {
                 socket.emit('updateContent', 'An error occurred while fetching room content.');
             }
         } else {
-            socket.emit('updateContent', roomContent.initialCode.replace(/\\n/g, '\n'));
+            socket.emit('updateContent', contents[roomName].initialCode.replace(/\\n/g, '\n'));
         }
 
         // Informs the other users that a new user has joined the room
