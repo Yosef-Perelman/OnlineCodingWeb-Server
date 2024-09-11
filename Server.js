@@ -52,6 +52,14 @@ async function fetchRoomContent(roomName) {
     }
 }
 
+// Function to reset room content
+function resetRoomContent(roomName) {
+    console.log(`Resetting content for room: ${roomName}`);
+    delete contents[roomName];
+    delete rooms[roomName];
+    delete mentors[roomName];
+}
+
 io.on('connection', (socket) => {
     console.log(`New client connected ${socket.id}`);
     
@@ -131,10 +139,14 @@ io.on('connection', (socket) => {
                 if (mentors[roomName] === socket.id) {
                     // Mentor has left, notify all users to leave
                     io.to(roomName).emit('mentorLeft');
-                    delete rooms[roomName];
-                    delete mentors[roomName];
+                    resetRoomContent(roomName);
                 } else {
                     socket.to(roomName).emit('userLeft', { socketId: socket.id, roomSize });
+                    
+                    // Check if the room is now empty
+                    if (roomSize === 0) {
+                        resetRoomContent(roomName);
+                    }
                 }
             }
         }
