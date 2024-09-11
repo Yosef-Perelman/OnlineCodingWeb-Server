@@ -19,7 +19,6 @@ const io = socketIo(server, {
     }
 });
 
-// Store the current content in a variable
 let contents = {};
 let rooms = {}
 let mentors = {};
@@ -35,7 +34,7 @@ async function fetchRoomContent(roomName) {
         console.log(`Executing database query for room: ${roomName}`);
         const content = await Content.findOne({ title: roomName });
         console.log(`Database query completed for room: ${roomName}`);
-        
+
         if (content) {
             console.log(`Content found for room ${roomName}:`, content);
             contents[roomName] = {
@@ -64,7 +63,7 @@ function resetRoomContent(roomName) {
 
 io.on('connection', (socket) => {
     console.log(`New client connected ${socket.id}`);
-    
+
     socket.on('join', async (room_name) => {
         console.log(`room name = ${room_name}`);
         socket.join(room_name);
@@ -79,8 +78,8 @@ io.on('connection', (socket) => {
 
         const roomSize = getRoomSize(room_name);
 
-         // Fetch room content from MongoDB if not already in memory
-         if (!contents[room_name]) {
+        // Fetch room content from MongoDB if not already in memory
+        if (!contents[room_name]) {
             console.log(`Fetching content for room: ${room_name}`);
             try {
                 const roomContent = await fetchRoomContent(room_name);
@@ -111,11 +110,11 @@ io.on('connection', (socket) => {
         console.log(`Number of users in ${room_name}:`, roomSize);
 
     })
-    
+
     // Send the current content to the newly connected client
     // socket.emit('updateContent', currentContent);
     // console.log('Sending current content to new client:', currentContent);
-    
+
     socket.on('edit', (content, room_name) => {
         if (contents[room_name]) {
             contents[room_name].initialCode = content;
@@ -137,14 +136,14 @@ io.on('connection', (socket) => {
             if (index !== -1) {
                 rooms[roomName].splice(index, 1);
                 const roomSize = getRoomSize(roomName);
-                
+
                 if (mentors[roomName] === socket.id) {
                     // Mentor has left, notify all users to leave
                     io.to(roomName).emit('mentorLeft');
                     resetRoomContent(roomName);
                 } else {
                     socket.to(roomName).emit('userLeft', { socketId: socket.id, roomSize });
-                    
+
                     // Check if the room is now empty
                     if (roomSize === 0) {
                         resetRoomContent(roomName);
