@@ -37,8 +37,8 @@ async function getDataFromMongo(roomName) {
 
         if (content) {
             contents[roomName] = {
-                initialCode: content.initialCode,
-                solution: content.solution
+                initialCode: JSON.parse(JSON.stringify(content.initialCode)),
+                solution: JSON.parse(JSON.stringify(content.solution))
             };
             return contents[roomName];
         } else {
@@ -83,7 +83,7 @@ io.on('connection', (socket) => {
             try {
                 const roomContent = await getDataFromMongo(roomName);
                 if (roomContent) {
-                    socket.emit('updateContent', roomContent.initialCode);
+                    socket.emit('updateContent', roomContent.initialCode.replace(/\\n/g, '\n'));
                 } else {
                     socket.emit('updateContent', 'No content found for this room.');
                 }
@@ -91,7 +91,7 @@ io.on('connection', (socket) => {
                 socket.emit('updateContent', 'An error occurred while fetching room content.');
             }
         } else {
-            socket.emit('updateContent', contents[roomName].initialCode);
+            socket.emit('updateContent', roomContent.initialCode.replace(/\\n/g, '\n'));
         }
 
         // Informs the other users that a new user has joined the room
@@ -103,9 +103,14 @@ io.on('connection', (socket) => {
             contents[roomName].initialCode = content;
             io.to(roomName).emit('updateContent', content);
 
-            if (content === contents[roomName].solution) {
-                console.log('Some user found the solution.');
-                io.to(roomName).emit('correctSolution');
+            const normalizeCode = (code) => code.replace(/\\n/g, '\n').replace(/\s+/g, '').toLowerCase();
+        
+            const normalizedContent = normalizeCode(content);
+            const normalizedSolution = normalizeCode(contents[roomName].solution);
+        
+        if (normalizedContent === normalizedSolution) {
+            console.log('**************Some user found the solution.');
+            io.to(roomName).emit('correctSolution');
             }
         }
     });
