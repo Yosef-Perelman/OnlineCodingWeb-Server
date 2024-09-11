@@ -1,9 +1,11 @@
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const Content = require('./schemas/Content');
+
 
 const app = express();
 app.use(cors());
@@ -157,8 +159,7 @@ const PORT = 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Connect to MongoDB
-mongoose.connect('mongodb+srv://ronaldo:w6JkhAaWRmPvYTmV@online-coding-web.vpgso.mongodb.net/CodingExcercises?retryWrites=true&w=majority&appName=Online-Coding-Web', {
-}).then(() => {
+mongoose.connect(process.env.MONGODB_URL, {}).then(() => {
     console.log('MongoDB connected');
 }).catch((err) => {
     console.error('MongoDB connection error:', err);
