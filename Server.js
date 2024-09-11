@@ -38,8 +38,7 @@ async function getDataFromMongo(roomName) {
         if (content) {
             contents[roomName] = {
                 initialCode: content.initialCode,
-                solution: content.solution,
-                explanation: content.explanation
+                solution: content.solution
             };
             return contents[roomName];
         } else {
@@ -93,9 +92,7 @@ io.on('connection', (socket) => {
         }
 
         // Updates the new user with the current content of the editor
-        socket.emit('roomInfo', { roomSize,
-             isMentor,
-             explanation: contents[roomName] ? contents[roomName].explanation : 'No explanation available' });
+        socket.emit('roomInfo', { roomSize, isMentor });
 
         // Informs the other users that a new user has joined the room
         socket.to(roomName).emit('userJoined', { socketId: socket.id, roomSize });
