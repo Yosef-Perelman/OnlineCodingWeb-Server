@@ -1,8 +1,9 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -17,5 +18,9 @@
     "mongoose": "^8.6.1",
     "nodemon": "^3.1.4",
     "socket.io": "^4.7.5"
+  },
+  "engines": {
+    "node": "20.17.0",
+    "npm" : "10.8.3"
   }
 }
