@@ -27,4 +27,16 @@ When a user enters the room and is not the first then he is considered a student
 
 
 The exercises are sections of code from which keywords have been deleted and the student has to complete them for the code to work.<br/>
-When the student succeeds in the task, a notification appears and the code can no longer be changed.
+When the student succeeds in the task, a notification appears and the code can no longer be changed.<br/>
+
+
+## Pictures:
+### Home Page:
+![Screenshot 2024-09-11 225825](https://github.com/user-attachments/assets/1182bbac-ae1e-4625-9619-4d37eec6e287)
+
+### Connected as a mentor:
+![Screenshot 2024-09-11 225850](https://github.com/user-attachments/assets/2a3f263a-9744-47e2-9223-b84a792b4b38)
+
+### The solution been found:
+![Screenshot 2024-09-11 225907](https://github.com/user-attachments/assets/5ba1aa1c-6b79-4eb3-a64e-f4039992ef8d)
+
